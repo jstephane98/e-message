@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\MessageRequest;
+use App\Models\Message;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class MessageController extends Controller
+{
+    public function index(Request $request)
+    {
+        $request->validate([
+            'receive' => ['required_if:group,null', 'exists:users,id'],
+            'group' => ['required_if:receive,null', 'exists:groups,id']
+        ]);
+
+        $message = Message::when($request->receive, function (Builder $query) use ($request) {
+            $query->where('receive', $request->input('receive'))
+                ->where('send', auth()->id());
+        })
+        ->when($request->group, function (Builder $query) use ($request) {
+            $query->where('group_id', $request->group);
+        })
+        ->get();
+
+        return response()->json($message);
+    }
+
+    public function store(MessageRequest $request)
+    {
+        $data = array_merge($request->validated(), ['send_at' => now(), 'send' => auth()->id()]);
+
+        $message = Message::create($data);
+
+        // Envoyer un event de message ajouter
+
+        return response()->json([], Response::HTTP_CREATED);
+    }
+
+    public function changeState(Request $request, Message $message)
+    {
+        $request->validate([
+            'column' => ['required', 'in:receive_at,read_at']
+        ]);
+
+        $message->update([$request->column => now()]);
+
+        return response()->json([], Response::HTTP_ACCEPTED);
+    }
+}

@@ -1,0 +1,45 @@
+<div class="d-flex justify-content-center container">
+  <form [formGroup]="loginForm" class="w-50 my-5 p-5 shadow-lg rounded" (ngSubmit)="login()">
+    <h4 class="mb-4">Connexion</h4>
+
+    <div class="mb-2">
+      <label for="phone" class="form-label">Phone</label>
+
+      <input
+        id="phone"
+        type="tel"
+        required
+        autofocus
+        placeholder="Entrer votre numéro de téléphone"
+        class="form-control"
+        formControlName="phone"
+      />
+
+    </div>
+
+    <div class="mt-4">
+      <label for="password" class="form-label">Mot de passe</label>
+
+      <input
+        id="password"
+        type="password"
+        required
+        placeholder="Entrer votre mot de passe."
+        class="form-control"
+        formControlName="password"
+      />
+    </div>
+
+    <div class="d-flex justify-content-center mt-5">
+      <button
+        class="btn btn-primary d-flex align-items-center gap-1"
+        [disabled]="! loginForm.valid"
+      >
+        <div class="spinner-border spinner-border-sm" role="status" *ngIf="spinner">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        Connexion
+      </button>
+    </div>
+  </form>
+</div>
